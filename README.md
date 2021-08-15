@@ -1,5 +1,5 @@
 # NekoDockerfile
-存放一些常用的 `Dockerfile`
+存放一些常用的 `Dockerfile`。
 
 ## 使用 http 代理构建镜像：
 部分场景需要用到代理才能联网，可用以下方法设置代理：
