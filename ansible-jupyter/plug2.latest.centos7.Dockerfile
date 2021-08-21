@@ -24,6 +24,13 @@ RUN pip3 install jupyter; \
     jupyter contrib nbextension install --user; \
     jupyter nbextensions_configurator enable --user
 
+# Cancel jupyter password
+RUN jupyter notebook --generate-config && \
+    echo "c.NotebookApp.token = ''" >> /root/.jupyter/jupyter_notebook_config.py
+
+# Install jupyter theme
+RUN pip3 install jupyterthemes && jt -t chesterish -f consolamono -fs 140 -altp -tfs 13 -nfs 115 -ofs 14 -cellw 80% -T
+
 # Run service of Jupyter.
 COPY docker-entrypoint.sh /usr/local/bin/
 ENTRYPOINT [ "docker-entrypoint.sh" ]
