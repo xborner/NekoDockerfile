@@ -11,14 +11,11 @@ Ansible 和 Jupyter 是绝妙的组合，Ansible 负责后端服务，批量控�
 
 ~~基于 [ansible-jupyter.dockerfile](https://github.com/chusiang/ansible-jupyter.dockerfile) 做了一些修改。~~
 
-原仓库基于 Python2，现更新为基于 Python3 内核版本。同时给 Jupyter 添加了主题、插件等，让页面更加美观易用。
+原仓库基于 Python2，现更新为基于 Python3 内核版本。同时给 Jupyter 添加了主题、插件等，让页面更加美观易用，修复了无法输入中文问题。
 
 ## Dockerfile 说明
 [plug2.latest.centos7.Dockerfile](plug2.latest.centos7.Dockerfile)
 Ansible-Jupyter，添加了 chesterish 主题 consolamono 字体，以及 jupyter_contrib_nbextensions 插件功能，可根据需要增删部分内容。
-
-[plug2krb.latest.centos7.Dockerfile(调试中)](plug2krb.latest.centos7.Dockerfile)
-在上面的基础上新增安装 Kerberos，可控制加了域的 Windows 机器。
 
 [OnlyAnsibleV2.9.17.centos7.Dockerfile](./OnlyAnsibleV2.9.17.centos7.Dockerfile)
 仅安装 AnsibleV2.9.17，基于 Python3。
