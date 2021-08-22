@@ -1,8 +1,9 @@
 FROM centos:7
 
 # Set http proxy
-ENV http_proxy http://192.168.1.165:1082
-ENV https_proxy http://192.168.1.165:1082
+ARG set_proxy=http://10.253.195.71:1082
+ARG http_proxy=${set_proxy}
+ARG https_proxy=${set_proxy}
 ENV ANSIBLE_VERSION 2.9.17
 ENV LC_ALL en_US.utf8
 
