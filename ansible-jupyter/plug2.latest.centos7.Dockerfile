@@ -8,7 +8,7 @@ ENV LC_ALL en_US.utf8
 
 # Install python3
 RUN yum check-update; \
-    yum install -y gcc libffi-devel python3 epel-release --whithout-recommends; \
+    yum install -y gcc libffi-devel python3 epel-release; \
     yum install -y python3-pip; \
     yum clean all
 
