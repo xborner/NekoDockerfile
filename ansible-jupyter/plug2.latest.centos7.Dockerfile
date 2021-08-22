@@ -12,10 +12,11 @@ RUN yum check-update; \
     yum install -y python3-pip; \
     yum clean all
 
-# Install ansible
+# Install ansible && pywinrm
 RUN pip3 install --upgrade pip; \
     pip3 install "ansible==${ANSIBLE_VERSION}"; \
-    pip3 install ansible[azure]
+    pip3 install ansible[azure]; \
+    pip3 install pywinrm
 
 # Install jupyter && plug
 RUN pip3 install jupyter; \
@@ -24,12 +25,17 @@ RUN pip3 install jupyter; \
     jupyter contrib nbextension install --user; \
     jupyter nbextensions_configurator enable --user
 
+# Install Kerberos client. Not required!?
+# RUN yun install -y krb5-libs krb5-workstation pam_krb5
+#     pip3 install Kerberos
+
 # Cancel jupyter password
 RUN jupyter notebook --generate-config && \
     echo "c.NotebookApp.token = ''" >> /root/.jupyter/jupyter_notebook_config.py
 
 # Install jupyter theme
-RUN pip3 install jupyterthemes && jt -t chesterish -f consolamono -fs 140 -altp -tfs 13 -nfs 115 -ofs 14 -cellw 80% -T
+RUN pip3 install jupyterthemes; \
+    jt -t chesterish -f consolamono -fs 140 -altp -tfs 13 -nfs 115 -ofs 14 -cellw 80% -T
 
 # Run service of Jupyter.
 COPY docker-entrypoint.sh /usr/local/bin/
