@@ -40,9 +40,24 @@ Ansible-jupyter 组合，基于 Python2~~
   1. 构建镜像
 
       ```
-      $ docker build -t xborner/ansible-jupyter . -f plug2.latest.centos7.Dockerfile
+      $ docker build -t xborner/ansible-jupyter-plug2 . -f plug2.latest.centos7.Dockerfile
       ```
 
 ## 运行容器
 
+  1. 获取镜像
+      ```
+        $ docker pull xborner/ansible-jupyter-plug2
+      ```
+
+2. 以守护进程模式启动容器
+      ```
+        $ docker run --name ansible-jupyter-plug2 -P -d xborner/ansible-jupyter-plug2
+      ```
+3. 检查容器运行情况
+      ```
+        $ docker ps
+      ```
+
 ## 使用
+在浏览器中打开 http://127.0.0.1:8888 开始访问。
