@@ -37,6 +37,11 @@ Ansible-jupyter 组合，基于 Python2~~
       $ cd ./NekoDockerfile/ansible-jupyter/
       ```
 
+  1. 给启动脚本赋予权限
+
+      ```
+      $ chmod 755 docker-entrypoint.sh
+      ```
   1. 构建镜像
 
       ```
