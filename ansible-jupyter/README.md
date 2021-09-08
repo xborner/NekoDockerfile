@@ -57,7 +57,7 @@ Ansible-jupyter 组合，基于 Python2~~
 
 2. 以守护进程模式启动容器
       ```
-        $ docker run --name ansible-jupyter-plug2 -P -d xborner/ansible-jupyter-plug2
+        $ docker run --name ansible-jupyter-plug2 -p 8888:8888 -d xborner/ansible-jupyter-plug2
       ```
 3. 检查容器运行情况
       ```
