@@ -1,0 +1,7 @@
+ansible==2.9.17
+pywinrm
+jupyter
+notebook<7
+jupyter_contrib_nbextensions
+jupyter_nbextensions_configurator
+jupyterthemes

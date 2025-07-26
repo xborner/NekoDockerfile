@@ -1,46 +1,46 @@
-FROM centos:7
+# =================================================================
+# Stage 1: Builder - 使用 Debian Buster 并手动修复软件源
+# =================================================================
+FROM python:3.8-slim-buster as builder
 
-# Set http proxy
-ARG set_proxy=http://10.253.195.71:1082
-ARG http_proxy=${set_proxy}
-ARG https_proxy=${set_proxy}
-ENV ANSIBLE_VERSION 2.9.17
-ENV LC_ALL en_US.utf8
+# 设置环境变量
+ENV LC_ALL=en_US.utf8 \
+    PIP_NO_CACHE_DIR=off \
+    PIP_DISABLE_PIP_VERSION_CHECK=on
 
-# Install python3
-RUN yum check-update; \
-    yum install -y gcc libffi-devel python3 epel-release; \
-    yum install -y python3-pip; \
-    yum clean all
+# 修复 apt 源问题
+RUN sed -i 's/deb.debian.org/archive.debian.org/g' /etc/apt/sources.list && \
+    sed -i 's|security.debian.org/debian-security|archive.debian.org/debian-security|g' /etc/apt/sources.list && \
+    sed -i '/buster-updates/d' /etc/apt/sources.list && \
+    apt-get update --allow-insecure-repositories && \
+    apt-get install -y --no-install-recommends --allow-unauthenticated gcc libffi-dev && \
+    rm -rf /var/lib/apt/lists/*
 
-# Install ansible && pywinrm
-RUN pip3 install --upgrade pip; \
-    pip3 install "ansible==${ANSIBLE_VERSION}"; \
-    pip3 install ansible[azure]; \
-    pip3 install pywinrm
+# 复制依赖文件到镜像中
+COPY requirements.txt /tmp/requirements.txt
 
-# Install jupyter && plug
-RUN pip3 install jupyter; \
-    pip3 install jupyter_contrib_nbextensions; \
-    pip3 install jupyter_nbextensions_configurator; \
-    jupyter contrib nbextension install --user; \
-    jupyter nbextensions_configurator enable --user
+# 修复 pip 下载问题：使用国内镜像源并增加超时时间
+RUN pip install --default-timeout=100 -r /tmp/requirements.txt
 
-# Install Kerberos client. Not required!?
-# RUN yun install -y krb5-libs krb5-workstation pam_krb5
-#     pip3 install Kerberos
+# =================================================================
+# Stage 2: Final - 最终的轻量级运行镜像
+# =================================================================
+FROM python:3.8-slim-buster
 
-# Cancel jupyter password
-RUN jupyter notebook --generate-config && \
-    echo "c.NotebookApp.token = ''" >> /root/.jupyter/jupyter_notebook_config.py
+ENV LC_ALL=en_US.utf8
+WORKDIR /workspace
 
-# Install jupyter theme
-RUN pip3 install jupyterthemes; \
+# 从 builder 阶段拷贝已安装的 Python 库和可执行文件
+COPY --from=builder /usr/local/lib/python3.8/site-packages /usr/local/lib/python3.8/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
+
+# 在一个 RUN 指令中完成所有 Jupyter 配置
+RUN jupyter contrib nbextension install --user && \
+    jupyter nbextensions_configurator enable --user && \
+    jupyter notebook --generate-config --allow-root && \
+    echo "c.NotebookApp.token = ''" >> /root/.jupyter/jupyter_notebook_config.py && \
     jt -t chesterish -f consolamono -fs 140 -altp -tfs 13 -nfs 115 -ofs 14 -cellw 80% -T
 
-# Run service of Jupyter.
-COPY docker-entrypoint.sh /usr/local/bin/
-ENTRYPOINT [ "docker-entrypoint.sh" ]
 EXPOSE 8888
 
-CMD [ "jupyter", "--version" ]
+CMD [ "jupyter-notebook", "--ip=0.0.0.0", "--no-browser", "--allow-root", "--notebook-dir=/workspace" ]
