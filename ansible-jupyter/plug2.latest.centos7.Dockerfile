@@ -1,4 +1,3 @@
-# =================================================================
 # Stage 1: Builder - 使用 Debian Buster 并手动修复软件源
 # =================================================================
 FROM python:3.8-slim-buster as builder
@@ -22,6 +21,7 @@ COPY requirements.txt /tmp/requirements.txt
 # 修复 pip 下载问题：使用国内镜像源并增加超时时间
 RUN pip install --default-timeout=100 -r /tmp/requirements.txt
 
+
 # =================================================================
 # Stage 2: Final - 最终的轻量级运行镜像
 # =================================================================
@@ -33,6 +33,20 @@ WORKDIR /workspace
 # 从 builder 阶段拷贝已安装的 Python 库和可执行文件
 COPY --from=builder /usr/local/lib/python3.8/site-packages /usr/local/lib/python3.8/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
+
+# ========================= 修改部分开始 =========================
+# 在最终镜像中安装 Ansible 运行时所需要的 SSH 相关依赖
+# 注意：我们必须在这里重复 builder 阶段的源修复操作，因为这是一个新的镜像阶段
+RUN sed -i 's/deb.debian.org/archive.debian.org/g' /etc/apt/sources.list && \
+    sed -i 's|security.debian.org/debian-security|archive.debian.org/debian-security|g' /etc/apt/sources.list && \
+    sed -i '/buster-updates/d' /etc/apt/sources.list && \
+    apt-get update --allow-insecure-repositories && \
+    apt-get install -y --no-install-recommends --allow-unauthenticated \
+        openssh-client \
+        sshpass \
+    && \
+    rm -rf /var/lib/apt/lists/*
+# ========================= 修改部分结束 =========================
 
 # 在一个 RUN 指令中完成所有 Jupyter 配置
 RUN jupyter contrib nbextension install --user && \
